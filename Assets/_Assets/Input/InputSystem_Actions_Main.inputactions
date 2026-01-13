@@ -998,6 +998,34 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "LevelEditor",
+            "id": "6b4571c5-a2c1-4c64-bf56-0cc455cd8b35",
+            "actions": [
+                {
+                    "name": "Generate",
+                    "type": "Button",
+                    "id": "8f35a849-1520-49e1-b8de-d477e6dae63f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "9071afe0-0f63-45f7-b6e0-7bc360094703",
+                    "path": "<Keyboard>/m",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Generate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": [

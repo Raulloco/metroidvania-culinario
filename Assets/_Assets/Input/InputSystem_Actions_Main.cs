@@ -1084,6 +1084,34 @@ public partial class @InputSystem_Actions_Main: IInputActionCollection2, IDispos
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""LevelEditor"",
+            ""id"": ""6b4571c5-a2c1-4c64-bf56-0cc455cd8b35"",
+            ""actions"": [
+                {
+                    ""name"": ""Generate"",
+                    ""type"": ""Button"",
+                    ""id"": ""8f35a849-1520-49e1-b8de-d477e6dae63f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""9071afe0-0f63-45f7-b6e0-7bc360094703"",
+                    ""path"": ""<Keyboard>/m"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Generate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": [
@@ -1174,12 +1202,16 @@ public partial class @InputSystem_Actions_Main: IInputActionCollection2, IDispos
         m_UI_TrackedDeviceOrientation = m_UI.FindAction("TrackedDeviceOrientation", throwIfNotFound: true);
         m_UI_PauseMenu = m_UI.FindAction("PauseMenu", throwIfNotFound: true);
         m_UI_Inventory = m_UI.FindAction("Inventory", throwIfNotFound: true);
+        // LevelEditor
+        m_LevelEditor = asset.FindActionMap("LevelEditor", throwIfNotFound: true);
+        m_LevelEditor_Generate = m_LevelEditor.FindAction("Generate", throwIfNotFound: true);
     }
 
     ~@InputSystem_Actions_Main()
     {
         UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, InputSystem_Actions_Main.Player.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, InputSystem_Actions_Main.UI.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_LevelEditor.enabled, "This will cause a leak and performance issues, InputSystem_Actions_Main.LevelEditor.Disable() has not been called.");
     }
 
     /// <summary>
@@ -1652,6 +1684,102 @@ public partial class @InputSystem_Actions_Main: IInputActionCollection2, IDispos
     /// Provides a new <see cref="UIActions" /> instance referencing this action map.
     /// </summary>
     public UIActions @UI => new UIActions(this);
+
+    // LevelEditor
+    private readonly InputActionMap m_LevelEditor;
+    private List<ILevelEditorActions> m_LevelEditorActionsCallbackInterfaces = new List<ILevelEditorActions>();
+    private readonly InputAction m_LevelEditor_Generate;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "LevelEditor".
+    /// </summary>
+    public struct LevelEditorActions
+    {
+        private @InputSystem_Actions_Main m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public LevelEditorActions(@InputSystem_Actions_Main wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "LevelEditor/Generate".
+        /// </summary>
+        public InputAction @Generate => m_Wrapper.m_LevelEditor_Generate;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_LevelEditor; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="LevelEditorActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(LevelEditorActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="LevelEditorActions" />
+        public void AddCallbacks(ILevelEditorActions instance)
+        {
+            if (instance == null || m_Wrapper.m_LevelEditorActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_LevelEditorActionsCallbackInterfaces.Add(instance);
+            @Generate.started += instance.OnGenerate;
+            @Generate.performed += instance.OnGenerate;
+            @Generate.canceled += instance.OnGenerate;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="LevelEditorActions" />
+        private void UnregisterCallbacks(ILevelEditorActions instance)
+        {
+            @Generate.started -= instance.OnGenerate;
+            @Generate.performed -= instance.OnGenerate;
+            @Generate.canceled -= instance.OnGenerate;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="LevelEditorActions.UnregisterCallbacks(ILevelEditorActions)" />.
+        /// </summary>
+        /// <seealso cref="LevelEditorActions.UnregisterCallbacks(ILevelEditorActions)" />
+        public void RemoveCallbacks(ILevelEditorActions instance)
+        {
+            if (m_Wrapper.m_LevelEditorActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="LevelEditorActions.AddCallbacks(ILevelEditorActions)" />
+        /// <seealso cref="LevelEditorActions.RemoveCallbacks(ILevelEditorActions)" />
+        /// <seealso cref="LevelEditorActions.UnregisterCallbacks(ILevelEditorActions)" />
+        public void SetCallbacks(ILevelEditorActions instance)
+        {
+            foreach (var item in m_Wrapper.m_LevelEditorActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_LevelEditorActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="LevelEditorActions" /> instance referencing this action map.
+    /// </summary>
+    public LevelEditorActions @LevelEditor => new LevelEditorActions(this);
     private int m_KeyboardMouseSchemeIndex = -1;
     /// <summary>
     /// Provides access to the input control scheme.
@@ -1879,5 +2007,20 @@ public partial class @InputSystem_Actions_Main: IInputActionCollection2, IDispos
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInventory(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "LevelEditor" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="LevelEditorActions.AddCallbacks(ILevelEditorActions)" />
+    /// <seealso cref="LevelEditorActions.RemoveCallbacks(ILevelEditorActions)" />
+    public interface ILevelEditorActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "Generate" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnGenerate(InputAction.CallbackContext context);
     }
 }
